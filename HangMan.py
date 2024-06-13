@@ -79,3 +79,97 @@ def show_options(event=None):
     else:
         messagebox.showinfo("Na vjen keq", "Luaj lojen kur te jeni gati!")
         root.destroy()
+
+
+
+
+    def guess_letter(event=None):
+
+        nonlocal lives
+        letter = letter_entry.get().lower()
+
+        if not letter:
+            messagebox.showerror("Gabim", "Ju lutem shtypni nje shkronje!")
+            return
+
+        if len(letter) != 1 or not letter.isalpha():
+            messagebox.showerror(
+                "Gabim", "Ju lutem shkruani vetem nje shkronje!")
+            letter_entry.delete(0, 'end')
+            return
+
+        elif not letter.isalpha():
+            messagebox.showerror(
+                "Gabim", "Ju lutem shkruani vetem shkronja!")
+            letter_entry.delete(0, 'end')
+            return
+
+        if letter.isalpha() and len(letter) == 1:
+            if letter in guessed_letters:
+                messagebox.showinfo(
+                    "Gabim", "Keni marre kete shkronje tashme!")
+
+            elif letter in word:
+                guessed_letters.append(letter)
+                for i, char in enumerate(word):
+                    if char == letter:
+                        display_word[i] = letter
+                word_label.config(text=' '.join(display_word))
+                if '_' not in display_word:
+                    messagebox.showinfo("Fitore", "Urime! Ju fituat!")
+                    play_again()
+            else:
+                messagebox.showinfo(
+                    "Gabim", "Shkronja '{}' nuk eshte ne fjale!".format(letter))
+                guessed_letters.append(letter)
+                lives -= 1
+                lives_label.config(text="Tentativa: {}".format(lives))
+                if lives == 0:
+                    messagebox.showinfo(
+                        "Deshperim", f"Ju humbet!. Fjala ishte '{word}'!")
+                    play_again()
+            letter_entry.delete(0, 'end')
+
+    def play_again():
+        response = messagebox.askyesno(
+            "Loje perfundoi", "Deshironi te luani perseri?")
+        if response:
+            root.destroy()
+            initialize_gui()
+        else:
+            root.quit()
+            sys.exit(0)
+
+
+    word_label = tk.Label(root, text=' '.join(
+        display_word), font=("Helvetica", 16))
+    word_label.pack()
+
+    letter_label = tk.Label(
+        root, text="Shtypni nje shkronje:", font=("Helvetica", 12))
+    letter_label.pack(pady=5)
+
+    letter_entry = tk.Entry(root, font=("Helvetica", 12))
+    letter_entry.pack()
+
+    guess_button = tk.Button(
+        root, text="Supozo", command=guess_letter, font=("Helvetica", 12))
+    guess_button.pack(pady=5)
+
+    root.bind('<Return>', guess_letter)
+
+    lives_label = tk.Label(root, text="Tentativa: {}".format(
+        lives), font=("Helvetica", 12))
+    lives_label.pack()
+
+
+def show_about():
+    about_message = "Keni mundesine prej 3 nivele per te zgjedhur.\n"
+    about_message += "Jane 5 kategori te fjaleve qe mundeni te zgjedhni.\n"
+    about_message += "\n-Niveli 'easy' jep 8 tentativa, dhe ka zgjedhje kategorie.\n"
+    about_message += "\n-Niveli 'moderate' jep 6 tentativa, dhe ka zgjedhje kategorie.\n"
+    about_message += "\n-Niveli 'hard' jep 4 tentativa, dhe nuk ka zgjedhje kategorie.\n"
+    messagebox.showinfo("Rreth Lojes Hangman", about_message)
+
+if __name__ == "__main__":
+    initialize_gui()
